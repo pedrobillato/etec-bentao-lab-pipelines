@@ -19,6 +19,7 @@ jobs:
       - name: Calcular versão
         id: ver
         run: |
+          VERSAO:"1.67.42"
           echo "versao=$VERSAO" >> "$GITHUB_OUTPUT"     # output do step
           echo "APP_VERSION=$VERSAO" >> "$GITHUB_ENV"   # variável para os próximos steps
 
@@ -30,7 +31,8 @@ jobs:
     needs: build
     steps:
       - name: Usar em outro job (via needs)
+      env:
+          VERSAO: ${{ needs.build.outputs.versao }}
         run: |
-          echo "Publicando a versão ${{ needs.build.outputs.versao }}"
-          # TODO: faça este step FALHAR se a versão vier vazia.
-          # Dica: [ -n "..." ] || exit 1
+          [ -n "$VERSAO" ] || {echo "::error::versão vazia"; êxito 1; }
+          echo "Publicando a versão $VERSAO"
